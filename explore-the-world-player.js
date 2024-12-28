@@ -11,6 +11,7 @@ player.controller.action.move = {};
 player.controller.action.move.x = 0.0;
 player.controller.action.move.y = 0.0;
 player.controller.action.move.z = 0.0;
+player.controller.action.jump = false;
 player.controller.action.angle = {};
 player.controller.action.angle.x = 0.0;
 player.controller.action.angle.y = 0.0;
@@ -21,6 +22,7 @@ conf.keyboard.move.forward = "w";
 conf.keyboard.move.backward = "s";
 conf.keyboard.move.left = "a";
 conf.keyboard.move.right = "d";
+conf.keyboard.jump = " ";
 conf.gamepad = {};
 conf.gamepad.move = {};
 conf.gamepad.move.axis = {};
@@ -29,6 +31,7 @@ conf.gamepad.move.axis.z = 1;
 conf.gamepad.move.reversed = {};
 conf.gamepad.move.reversed.x = false;
 conf.gamepad.move.reversed.z = true;
+conf.gamepad.jump = 1;
 conf.gamepad.angle = {};
 conf.gamepad.angle.step = 0.1;
 conf.gamepad.angle.axis = {};
@@ -43,6 +46,7 @@ player.init = function() {
     width: 10, height: 10, depth: 10
   }, game.scene);
   player.mesh.material = new BABYLON.StandardMaterial("cube", game.scene);
+  player.mesh.material.specularColor = new BABYLON.Color3(0.0, 0.0, 0.0);
 }
 
 player.controller.action.handler.keyboard = function(e) {
@@ -51,58 +55,82 @@ player.controller.action.handler.keyboard = function(e) {
       player.controller.action.move.x = 1.0;
     } else if (e.sourceEvent.key == conf.keyboard.move.right) {
       player.controller.action.move.x = -1.0;
-    } else {
-      player.controller.action.move.x = 0.0;
     }
     if (e.sourceEvent.key == conf.keyboard.move.forward) {
       player.controller.action.move.z = -1.0;
     } else if (e.sourceEvent.key == conf.keyboard.move.backward) {
       player.controller.action.move.z = 1.0;
-    } else {
-      player.controller.action.move.z = 0.0;
+    }
+    if (e.sourceEvent.key == conf.keyboard.jump) {
+      player.controller.action.jump = true;
     }
   } else {
-    player.controller.action.move.x = 0.0;
-    player.controller.action.move.z = 0.0;
+    if (e.sourceEvent.key == conf.keyboard.move.left) {
+      player.controller.action.move.x = 0.0;
+    } else if (e.sourceEvent.key == conf.keyboard.move.right) {
+      player.controller.action.move.x = 0.0;
+    }
+    if (e.sourceEvent.key == conf.keyboard.move.forward) {
+      player.controller.action.move.z = 0.0;
+    } else if (e.sourceEvent.key == conf.keyboard.move.backward) {
+      player.controller.action.move.z = 0.0;
+    }
+    if (e.sourceEvent.key == conf.keyboard.jump) {
+      player.controller.action.jump = false;
+    }
   }
 }
 
 player.controller.action.handler.gamepad = function() {
-  let gamepad = navigator.getGamepads()[0];
-  if (gamepad) {
-    if (conf.gamepad.move.reversed.x) {
-      player.controller.action.move.x = -gamepad.axes[conf.gamepad.move.axis.x];
-    } else {
-      player.controller.action.move.x = gamepad.axes[conf.gamepad.move.axis.x];
-    }
-    if (conf.gamepad.move.reversed.z) {
-      player.controller.action.move.z = -gamepad.axes[conf.gamepad.move.axis.z];
-    } else {
-      player.controller.action.move.z = gamepad.axes[conf.gamepad.move.axis.z];
-    }
-    if (conf.gamepad.angle.reversed.x) {
-      player.controller.action.angle.x = -gamepad.axes[conf.gamepad.angle.axis.x];
-    } else {
-      player.controller.action.angle.x = gamepad.axes[conf.gamepad.angle.axis.x];
-    }
-    if (conf.gamepad.angle.reversed.y) {
-      player.controller.action.angle.y = -gamepad.axes[conf.gamepad.angle.axis.y];
-    } else {
-      player.controller.action.angle.y = gamepad.axes[conf.gamepad.angle.axis.y];
+  let gamepads = navigator.getGamepads();
+  for (let a = 0; a < gamepads.length; a++) {
+    if (gamepads[a]) {
+      if (conf.gamepad.move.reversed.x) {
+        player.controller.action.move.x = -gamepads[a].axes[conf.gamepad.move.axis.x];
+      } else {
+        player.controller.action.move.x = gamepads[a].axes[conf.gamepad.move.axis.x];
+      }
+      if (conf.gamepad.move.reversed.z) {
+        player.controller.action.move.z = -gamepads[a].axes[conf.gamepad.move.axis.z];
+      } else {
+        player.controller.action.move.z = gamepads[a].axes[conf.gamepad.move.axis.z];
+      }
+      if (conf.gamepad.angle.reversed.x) {
+        player.controller.action.angle.x = -gamepads[a].axes[conf.gamepad.angle.axis.x];
+      } else {
+        player.controller.action.angle.x = gamepads[a].axes[conf.gamepad.angle.axis.x];
+      }
+      if (conf.gamepad.angle.reversed.y) {
+        player.controller.action.angle.y = -gamepads[a].axes[conf.gamepad.angle.axis.y];
+      } else {
+        player.controller.action.angle.y = gamepads[a].axes[conf.gamepad.angle.axis.y];
+      }
+      if (gamepads[a].buttons[conf.gamepad.jump].pressed) {
+        player.controller.action.jump = true;
+      } else {
+        player.controller.action.jump = false;
+      }
     }
   }
 }
 
 player.controller.action.handler.main = function() {
   player.controller.action.handler.gamepad();
-  player.mesh.position.x += player.controller.action.move.x;
-  player.mesh.position.z += player.controller.action.move.z;
+  player.mesh.position.x += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
+  player.mesh.position.x += Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
+  player.mesh.position.y = conf.fields[game.active_field].ground.cube.size * conf.fields[game.active_field].ground.size.y;
+  player.mesh.position.z -= Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
+  player.mesh.position.z += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
   game.camera.alpha += conf.gamepad.angle.step * player.controller.action.angle.x;
   if (game.camera.alpha > conf.camera.angle.origin.x + Math.PI * 2.0) {
     game.camera.alpha = game.camera.alpha - Math.PI * 2.0;
   } else if (game.camera.alpha < conf.camera.angle.origin.x - Math.PI * 2.0) {
     game.camera.alpha = game.camera.alpha + Math.PI * 2.0;
   }
+  player.mesh.rotation.y = -game.camera.alpha;
   game.camera.beta += conf.gamepad.angle.step * player.controller.action.angle.y;
+  if (player.controller.action.jump) {
+    player.mesh.position.y += conf.fields[game.active_field].ground.cube.size;
+  }
 }
 

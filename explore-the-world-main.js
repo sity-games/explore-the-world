@@ -6,18 +6,19 @@ game.scene = null;
 game.camera = null;
 game.skybox = null;
 game.light = [];
-game.ground = null;
+game.fields = [];
+game.active_field = 0;
 
 let conf = {};
 conf.camera = {};
 conf.camera.radius = 30.0;
 conf.camera.angle = {};
 conf.camera.angle.origin = {};
-conf.camera.angle.origin.x = -Math.PI / 2.0;
-conf.camera.angle.origin.y = Math.PI / 2.0;
+conf.camera.angle.origin.x = 0.0;
+conf.camera.angle.origin.y = Math.PI * 1.0 / 3.0;
 conf.camera.angle.limit = {};
 conf.camera.angle.limit.x = (Math.PI * 2.1);
-conf.camera.angle.limit.y = Math.PI / 3.0;
+conf.camera.angle.limit.y = Math.PI / 6.0;
 conf.skybox = {};
 conf.skybox.size = 1000;
 conf.light = [];
@@ -29,15 +30,6 @@ conf.light.push({});
 conf.light[1].x = -1000;
 conf.light[1].y = -1000;
 conf.light[1].z = -1000;
-conf.ground = {};
-conf.ground.size = {};
-conf.ground.size.x = 100;
-conf.ground.size.y = 100;
-conf.ground.tile = {};
-conf.ground.tile.texture = "assets/TODO.png";
-conf.ground.tile.size = {};
-conf.ground.tile.size.u = 20;
-conf.ground.tile.size.v = 20;
 
 game.update = function() {
   player.controller.action.handler.main();
@@ -80,12 +72,7 @@ game.init = function() {
     game.light[a] = new BABYLON.DirectionalLight("Light", new BABYLON.Vector3(conf.light[a].x, conf.light[a].y, conf.light[a].z), game.scene);  
     game.light[a].intensity = 1.0;
   }
-  game.ground = new BABYLON.Mesh.CreateGround("Ground", conf.ground.size.x, conf.ground.size.y, 1, game.scene, false);
-  game.ground.material = new BABYLON.StandardMaterial("Ground", game.scene);
-  game.ground.material.diffuseTexture = new BABYLON.Texture(conf.ground.tile.texture, game.scene);
-  game.ground.material.diffuseTexture.uScale = conf.ground.tile.size.u;
-  game.ground.material.diffuseTexture.vScale = conf.ground.tile.size.v;
-  game.ground.material.specularColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+  game.fields[game.active_field].generate();
   player.init();
   game.camera.target = player.mesh;
   game.camera.lockedTarget = player.mesh;
