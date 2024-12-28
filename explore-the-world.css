@@ -1,12 +1,14 @@
 body {
+  background: rgb(0.0 0.0 0.0 / 1.0);
   padding: 0px;
-  margin: 0px;
+  margin: calc((100vh - 90vh) / 2) calc((100vw - 90vw) / 2) ;
 }
 
 #game-screen {
   width: 90vw;
   height: 90vh;
-  margin: auto;
+  margin: 0px;;
   padding: 0px;
   display: flex;
 }
+
