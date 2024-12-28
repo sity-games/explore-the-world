@@ -1,0 +1,12 @@
+body {
+  padding: 0px;
+  margin: 0px;
+}
+
+#game-screen {
+  width: 90vw;
+  height: 90vh;
+  margin: auto;
+  padding: 0px;
+  display: flex;
+}
