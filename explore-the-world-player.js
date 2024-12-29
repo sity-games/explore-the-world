@@ -55,14 +55,15 @@ conf.gamepad.angle.reversed = {};
 conf.gamepad.angle.reversed.x = true;
 conf.gamepad.angle.reversed.y = true;
 conf.player = {};
+conf.player.meshFile = "TODO.obj";
 conf.player.speed = 0.1;
 
-player.init = function() {
-  player.mesh = BABYLON.MeshBuilder.CreateBox('Cube', {
-    width: 10, height: 10, depth: 10
-  }, game.scene);
-  player.mesh.material = new BABYLON.StandardMaterial("cube", game.scene);
-  player.mesh.material.specularColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+player.init = async function() {
+  let object = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", conf.player.meshFile, game.scene);
+  player.mesh = object.meshes[0];
+  player.mesh.scaling.x = conf.fields[0].cube.size;
+  player.mesh.scaling.y = conf.fields[0].cube.size;
+  player.mesh.scaling.z = conf.fields[0].cube.size;
 }
 
 player.controller.action.handler.keyboard = function(e) {

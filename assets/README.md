@@ -2,4 +2,6 @@ assets
 ======
 | File name    | source        | Licence |
 | ------------ | ------------- | ------- |
-| TODO.png     | Adobe Express | Free    |
+| TODO.mtl     | Blender       | CC0     |
+| TODO.obj     | Blender       | CC0     |
+| TODO.png     | Adobe Express | CC0     |

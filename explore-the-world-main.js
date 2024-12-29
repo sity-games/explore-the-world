@@ -48,7 +48,7 @@ game.update = function() {
   game.scene.render();
 }
 
-game.init = function() {
+game.init = async function() {
   game.canvas = document.getElementById("game-screen");
   game.engine = new BABYLON.Engine(game.canvas, true, {
     preserveDrawingBuffer: true,
@@ -85,7 +85,7 @@ game.init = function() {
     game.light[a].intensity = conf.light[a].intensity;
   }
   game.fields[game.active_field].generate();
-  player.init();
+  await player.init();
   game.camera.target = player.mesh;
   game.camera.lockedTarget = player.mesh;
   game.engine.runRenderLoop(game.update);

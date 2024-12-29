@@ -8,6 +8,7 @@
     <script type="text/javascript" src="explore-the-world-player.js"></script>
     <script type="text/javascript" src="explore-the-world-fields.js"></script>
     <script type="text/javascript" src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script type="text/javascript" src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
   </head>
   <body>
     <canvas id="game-screen"></canvas>
