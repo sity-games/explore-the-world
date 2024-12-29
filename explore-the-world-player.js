@@ -1,6 +1,20 @@
 let player = {};
 player.init = function(){};
 player.mesh = null;
+player.position = function(){};
+player.position.current = {};
+player.position.current.vector3 = null;
+player.position.current.grid = {};
+player.position.current.grid.x = 0.0;
+player.position.current.grid.y = 0.0;
+player.position.current.grid.z = 0.0;
+player.position.next = {};
+player.position.next.vector3 = null;
+player.position.next.grid = {};
+player.position.next.grid.x = 0.0;
+player.position.next.grid.y = 0.0;
+player.position.next.grid.z = 0.0;
+player.fallSpeed = 0.1;
 player.controller = {};
 player.controller.action = {};
 player.controller.action.handler = {};
@@ -40,6 +54,8 @@ conf.gamepad.angle.axis.y = 3;
 conf.gamepad.angle.reversed = {};
 conf.gamepad.angle.reversed.x = true;
 conf.gamepad.angle.reversed.y = true;
+conf.player = {};
+conf.player.speed = 0.1;
 
 player.init = function() {
   player.mesh = BABYLON.MeshBuilder.CreateBox('Cube', {
@@ -116,11 +132,32 @@ player.controller.action.handler.gamepad = function() {
 
 player.controller.action.handler.main = function() {
   player.controller.action.handler.gamepad();
-  player.mesh.position.x += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
-  player.mesh.position.x += Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
-  player.mesh.position.y = conf.fields[game.active_field].ground.cube.size * conf.fields[game.active_field].ground.size.y;
-  player.mesh.position.z -= Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
-  player.mesh.position.z += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
+  player.position.current.vector3 = player.mesh.position.clone();
+  player.position.current.grid = game.cube.grid(player.position.current.vector3);
+  player.position.next.vector3 = player.mesh.position.clone();
+  player.position.next.vector3.x += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
+  player.position.next.vector3.x += Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
+  player.position.next.vector3.z -= Math.cos(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.x;
+  player.position.next.vector3.z += Math.sin(game.camera.alpha - conf.camera.angle.origin.x) * player.controller.action.move.z;
+  if (game.fields[game.active_field].map[player.position.current.grid.z][player.position.current.grid.y - 1][player.position.current.grid.x] == -1) {
+    player.position.next.vector3.y = player.position.next.vector3.y - conf.fields[game.active_field].cube.size * player.fallSpeed;
+    player.fallSpeed += 0.01; 
+  } else {
+    if (player.controller.action.jump) {
+      player.position.next.vector3.y = player.position.next.vector3.y + conf.fields[game.active_field].cube.size;
+    }
+    player.fallSpeed = 0.1;
+  }
+  player.position.next.grid = game.cube.grid(player.position.next.vector3);
+  if (game.cube.get(player.position.next.grid.x, player.position.current.grid.y, player.position.current.grid.z) < 0) {
+    player.mesh.position.x = player.position.next.vector3.x;
+  }
+  if (game.cube.get(player.position.current.grid.x, player.position.next.grid.y, player.position.current.grid.z) < 0) {
+    player.mesh.position.y = player.position.next.vector3.y;
+  }
+  if (game.cube.get(player.position.current.grid.x, player.position.current.grid.y, player.position.next.grid.z) < 0) {
+    player.mesh.position.z = player.position.next.vector3.z;
+  }
   game.camera.alpha += conf.gamepad.angle.step * player.controller.action.angle.x;
   if (game.camera.alpha > conf.camera.angle.origin.x + Math.PI * 2.0) {
     game.camera.alpha = game.camera.alpha - Math.PI * 2.0;
@@ -129,8 +166,5 @@ player.controller.action.handler.main = function() {
   }
   player.mesh.rotation.y = -game.camera.alpha;
   game.camera.beta += conf.gamepad.angle.step * player.controller.action.angle.y;
-  if (player.controller.action.jump) {
-    player.mesh.position.y += conf.fields[game.active_field].ground.cube.size;
-  }
 }
 

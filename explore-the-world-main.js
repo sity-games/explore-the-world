@@ -11,7 +11,7 @@ game.active_field = 0;
 
 let conf = {};
 conf.camera = {};
-conf.camera.radius = 30.0;
+conf.camera.radius = 50.0;
 conf.camera.angle = {};
 conf.camera.angle.origin = {};
 conf.camera.angle.origin.x = 0.0;
@@ -20,16 +20,28 @@ conf.camera.angle.limit = {};
 conf.camera.angle.limit.x = (Math.PI * 2.1);
 conf.camera.angle.limit.y = Math.PI / 6.0;
 conf.skybox = {};
-conf.skybox.size = 1000;
+conf.skybox.size = 10000;
 conf.light = [];
 conf.light.push({});
 conf.light[0].x = 1000;
-conf.light[0].y = 1000;
+conf.light[0].y = -1000;
 conf.light[0].z = 1000;
+conf.light[0].intensity = 1.0;
 conf.light.push({});
 conf.light[1].x = -1000;
 conf.light[1].y = -1000;
-conf.light[1].z = -1000;
+conf.light[1].z = 1000;
+conf.light[1].intensity = 0.3;
+conf.light.push({});
+conf.light[2].x = 1000;
+conf.light[2].y = -1000;
+conf.light[2].z = -1000;
+conf.light[2].intensity = 0.3;
+conf.light.push({});
+conf.light[3].x = -1000;
+conf.light[3].y = -1000;
+conf.light[3].z = -1000;
+conf.light[3].intensity = 0.3;
 
 game.update = function() {
   player.controller.action.handler.main();
@@ -70,7 +82,7 @@ game.init = function() {
   for (let a = 0; a < conf.light.length; a++) {
     game.light.push(null);
     game.light[a] = new BABYLON.DirectionalLight("Light", new BABYLON.Vector3(conf.light[a].x, conf.light[a].y, conf.light[a].z), game.scene);  
-    game.light[a].intensity = 1.0;
+    game.light[a].intensity = conf.light[a].intensity;
   }
   game.fields[game.active_field].generate();
   player.init();
