@@ -55,7 +55,7 @@ conf.gamepad.angle.reversed = {};
 conf.gamepad.angle.reversed.x = true;
 conf.gamepad.angle.reversed.y = true;
 conf.player = {};
-conf.player.meshFile = "TODO.obj";
+conf.player.meshFile = "TODO.glb";
 conf.player.speed = 0.1;
 
 player.init = async function() {
@@ -64,6 +64,7 @@ player.init = async function() {
   player.mesh.scaling.x = conf.fields[0].cube.size;
   player.mesh.scaling.y = conf.fields[0].cube.size;
   player.mesh.scaling.z = conf.fields[0].cube.size;
+  game.scene.beginAnimation(player.mesh, 0, player.mesh.animations.length, true);
 }
 
 player.controller.action.handler.keyboard = function(e) {
@@ -171,7 +172,7 @@ player.controller.action.handler.main = function() {
   } else if (game.camera.alpha < conf.camera.angle.origin.x - Math.PI * 2.0) {
     game.camera.alpha = game.camera.alpha + Math.PI * 2.0;
   }
-  player.mesh.rotation.y = -game.camera.alpha;
+  player.mesh.rotation = new BABYLON.Vector3(0.0, Math.PI * 3.0 / 2.0 - game.camera.alpha, 0.0);
   game.camera.beta += conf.gamepad.angle.step * player.controller.action.angle.y;
 }
 
