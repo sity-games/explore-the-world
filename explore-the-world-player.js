@@ -146,6 +146,12 @@ player.controller.action.handler.main = function() {
   } else {
     if (player.controller.action.jump) {
       player.position.next.vector3.y = player.position.next.vector3.y + conf.fields[game.active_field].cube.size;
+    } else {
+      player.position.next.vector3.y = game.cube.vector3({
+        x: player.position.current.grid.x, 
+        y: player.position.current.grid.y, 
+        z: player.position.current.grid.z
+      }).y;
     }
     player.fallSpeed = 0.1;
   }
